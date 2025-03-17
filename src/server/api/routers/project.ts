@@ -2,10 +2,11 @@ import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import z from "zod";
 import { pullCommit } from "@/lib/github";
-import { indexGithubRepo } from "@/lib/github-loader";
+import { checkCredits, indexGithubRepo } from "@/lib/github-loader";
 import { InputOTPGroup } from "@/components/ui/input-otp";
 import { db } from "@/server/db";
 import { issue } from "@uiw/react-md-editor";
+import { github } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
 export const ProjectRouter = createTRPCRouter({
 	createProject: protectedProcedure
@@ -192,5 +193,34 @@ export const ProjectRouter = createTRPCRouter({
 					user: true,
 				},
 			});
+		}),
+	getMyCredits: protectedProcedure.query(async ({ ctx }) => {
+		const userId = ctx.user.userId;
+		return await ctx.db.user.findUnique({
+			where: { id: userId! },
+			select: {
+				credits: true,
+			},
+		});
+	}),
+	checkCredits: protectedProcedure
+		.input(
+			z.object({
+				githubUrl: z.string(),
+				githubToken: z.string().optional(),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			const filesCount = await checkCredits(
+				input.githubUrl,
+				input.githubToken,
+			);
+			const userCredits = await ctx.db.user.findUnique({
+				where: { id: ctx.user.userId! },
+				select: {
+					credits: true,
+				},
+			});
+			return { filesCount, userCredits: userCredits?.credits || 0 };
 		}),
 });
