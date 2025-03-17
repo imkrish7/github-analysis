@@ -103,7 +103,7 @@ const AskQuestionCard = () => {
 					</DialogHeader>
 				</DialogContent>
 			</Dialog>
-			<Card className="relative col-span-3">
+			<Card className="relative col-span-4">
 				<CardHeader>
 					<CardTitle>Ask Question</CardTitle>
 				</CardHeader>
