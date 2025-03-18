@@ -46,6 +46,10 @@ const Create = () => {
 		}
 	};
 
+	const hasEnoughCrdits = checkCredit.data?.userCredits
+		? checkCredit.data.userCredits <= checkCredit.data.filesCount
+		: true;
+
 	return (
 		<div className="flex h-full items-center justify-center gap-12">
 			<img src="/undraw_github.svg" className="h-56 w-auto" />
@@ -111,7 +115,8 @@ const Create = () => {
 								type="submit"
 								disabled={
 									createProject.isPending ||
-									checkCredit.isPending
+									checkCredit.isPending ||
+									!hasEnoughCrdits
 								}
 							>
 								{!!checkCredit.data
